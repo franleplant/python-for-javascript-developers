@@ -1,5 +1,8 @@
 use regex::Regex;
 use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 use std::process::Command;
 use std::str;
 
@@ -8,6 +11,29 @@ struct CodeBlock {
     lang: Option<String>,
     code: String,
     start: usize,
+}
+
+impl CodeBlock {
+    fn get_lang(&self) -> String {
+        let mut lang = self.lang.clone().unwrap_or("no_lang".to_string());
+        if lang.len() == 0 {
+            lang = "no_lang".to_string();
+        }
+
+        return lang;
+    }
+
+    fn get_file_ext(&self) -> &str {
+        match self.get_lang().as_str() {
+            "javascript" => "js",
+            "python" => "py",
+            _ => "no_ext",
+        }
+    }
+
+    fn get_start_line(&self) -> usize {
+        self.start + 1
+    }
 }
 
 struct Parser<'a> {
@@ -76,19 +102,9 @@ impl<'a> Parser<'a> {
     }
 }
 
-fn main() -> Result<(), String> {
-    let contents = fs::read_to_string("./DOC.md").expect("Something went wrong reading the file");
-    //println!("With text:\n{}", contents);
-
-    let mut parser = Parser::new();
-    let blocks = parser.parse(&contents)?;
-    //println!("blocks {:?}", blocks);
-
+fn run_in_memory(blocks: Vec<CodeBlock>) -> Result<(), String> {
     for block in blocks.into_iter() {
-        let mut lang = block.lang.clone().unwrap_or("no_lang".to_string());
-        if lang.len() == 0 {
-            lang = "no_lang".to_string();
-        }
+        let lang = block.get_lang();
 
         match lang.as_str() {
             "javascript" => {
@@ -131,6 +147,44 @@ fn main() -> Result<(), String> {
             }
 
             _ => println!("xxx skipping {} block at line {}", lang, block.start + 1),
+        }
+    }
+
+    Ok(())
+}
+
+fn main() -> Result<(), String> {
+    let contents = fs::read_to_string("./DOC.md").expect("Something went wrong reading the file");
+    //println!("With text:\n{}", contents);
+
+    let mut parser = Parser::new();
+    let blocks = parser.parse(&contents)?;
+    //println!("blocks {:?}", blocks);
+    //
+    //run_in_memory(blocks)?;
+
+    let prefix = "DOC";
+    let tmp_dir = "./tmp";
+      fs::create_dir_all(tmp_dir).unwrap_or_else(|why| {
+                  println!("! {:?}", why.kind());
+                      });
+    for block in blocks.into_iter() {
+        let ext = block.get_file_ext();
+        let line = block.get_start_line();
+        let path_raw = format!("{}/{}__{}.{}", tmp_dir, prefix, line, ext);
+        let path = Path::new(&path_raw);
+        let path_display = path.display();
+
+        // Open a file in write-only mode, returns `io::Result<File>`
+        let mut file = match File::create(&path) {
+            Err(why) => panic!("couldn't create {}: {}", path_display, why),
+            Ok(file) => file,
+        };
+
+        // Write the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`
+        match file.write_all(block.code.as_bytes()) {
+            Err(why) => panic!("couldn't write to {}: {}", path_display, why),
+            Ok(_) => println!("successfully wrote to {}", path_display),
         }
     }
 
