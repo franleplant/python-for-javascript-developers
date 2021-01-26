@@ -1,11 +1,11 @@
 use regex::Regex;
 use std::fs;
 use std::fs::File;
+use std::io;
 use std::io::prelude::*;
 use std::path::Path;
 use std::process::Command;
 use std::str;
-use std::io;
 
 #[derive(Debug)]
 struct CodeBlock {
@@ -154,8 +154,7 @@ fn run_in_memory(blocks: Vec<CodeBlock>) -> Result<(), String> {
     Ok(())
 }
 
-
-fn extract_to_fs(prefix: &str, tmp_dir: &str, blocks: Vec<CodeBlock>) -> io::Result<()> {
+fn fs_extract(prefix: &str, tmp_dir: &str, blocks: Vec<CodeBlock>) -> io::Result<()> {
     fs::remove_dir_all(tmp_dir).unwrap_or_else(|why| {
         println!("error cleaning tmp dir {:?}", why);
     });
@@ -174,18 +173,99 @@ fn extract_to_fs(prefix: &str, tmp_dir: &str, blocks: Vec<CodeBlock>) -> io::Res
         let mut file = File::create(&path)?;
         println!("writting file {}", path_display);
         file.write_all(block.code.as_bytes())?;
-        //let mut file = match File::create(&path) {
-            //Ok(file) => file,
-            //Err(why) => panic!("couldn't create {}: {}", path_display, why),
-        //};
-
-        // Write the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`
-        //match file.write_all(block.code.as_bytes()) {
-            //Err(why) => panic!("couldn't write to {}: {}", path_display, why),
-            //Ok(_) => println!("successfully wrote to {}", path_display),
-        //}
     }
 
+    Ok(())
+}
+
+fn check_node() -> Result<String, String> {
+    let output = Command::new("node")
+        .arg("--version")
+        .output()
+        .expect(&format!(
+            "failed to execute, is node installed and available?"
+        ));
+
+    if output.status.success() {
+        let version = str::from_utf8(&output.stdout).unwrap();
+        println!("node --version {}", version);
+        return Ok(version.to_string());
+    } else {
+        println!("{}", str::from_utf8(&output.stderr).unwrap());
+        return Err(("node not found".to_string()));
+    }
+}
+
+fn check_python() -> Result<String, String> {
+    let output = Command::new("python3")
+        .arg("--version")
+        .output()
+        .expect(&format!(
+            "failed to execute, is python3 installed and available?"
+        ));
+
+    if output.status.success() {
+        let version = str::from_utf8(&output.stdout).unwrap();
+        println!("python3 --version {}", version);
+        return Ok(version.to_string());
+    } else {
+        println!("{}", str::from_utf8(&output.stderr).unwrap());
+        return Err(("python3 not found".to_string()));
+    }
+}
+
+fn fs_run(tmp_dir: &str) -> io::Result<()> {
+    println!("run files in {}", tmp_dir);
+    check_node().unwrap();
+    check_python().unwrap();
+
+    for entry in fs::read_dir(tmp_dir)? {
+        let entry = entry?;
+        let path_raw = entry.path();
+        let path = Path::new(&path_raw);
+        match path
+            .extension()
+            .map(|ext| ext.to_str().unwrap_or("no_ext"))
+            .unwrap_or("no_ext")
+        {
+            "js" => {
+                println!(">>> evaluating {}", path.display());
+                let output = Command::new("node")
+                    .arg(path.to_str().unwrap())
+                    .output()
+                    .expect(&format!(
+                        "failed to execute, is node installed and available?"
+                    ));
+
+                if output.status.success() {
+                    println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
+                } else {
+                    println!("ERROR");
+                    println!("{}", str::from_utf8(&output.stderr).unwrap())
+                }
+            }
+
+            "py" => {
+                println!(">>> evaluating {}", path.display());
+                let output = Command::new("python3")
+                    .arg(path.to_str().unwrap())
+                    .output()
+                    .expect(&format!(
+                        "failed to execute, is python3 installed and available?"
+                    ));
+
+                if output.status.success() {
+                    println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
+                } else {
+                    println!("ERROR");
+                    println!("{}", str::from_utf8(&output.stderr).unwrap())
+                }
+            }
+
+            _ => println!("fs_run skipping {}", path.display()),
+        }
+        //println!("found {:?} {:?}", path, path.extension());
+    }
 
     Ok(())
 }
@@ -200,8 +280,8 @@ fn main() -> Result<(), String> {
     let prefix = "DOC";
     let tmp_dir = "./tmp";
 
-    extract_to_fs(prefix, tmp_dir, blocks).unwrap();
-
+    fs_extract(prefix, tmp_dir, blocks).unwrap();
+    fs_run(tmp_dir).unwrap();
 
     Ok(())
 }

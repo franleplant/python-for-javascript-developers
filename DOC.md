@@ -108,7 +108,7 @@ form of string interpolation.
 Export default
 
 ```javascript
-import localModule from './fake/localModule.js'
+import localModule from '../fake/localModule.js'
 console.log(localModule.sayHi())
 
 ```
