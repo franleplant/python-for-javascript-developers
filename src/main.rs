@@ -5,6 +5,7 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::process::Command;
 use std::str;
+use std::io;
 
 #[derive(Debug)]
 struct CodeBlock {
@@ -153,6 +154,42 @@ fn run_in_memory(blocks: Vec<CodeBlock>) -> Result<(), String> {
     Ok(())
 }
 
+
+fn extract_to_fs(prefix: &str, tmp_dir: &str, blocks: Vec<CodeBlock>) -> io::Result<()> {
+    fs::remove_dir_all(tmp_dir).unwrap_or_else(|why| {
+        println!("error cleaning tmp dir {:?}", why);
+    });
+    fs::create_dir_all(tmp_dir).unwrap_or_else(|why| {
+        println!("error creating tmp dir {:?}", why.kind());
+    });
+
+    for block in blocks.into_iter() {
+        let ext = block.get_file_ext();
+        let line = block.get_start_line();
+        let path_raw = format!("{}/{}__{}.{}", tmp_dir, prefix, line, ext);
+        let path = Path::new(&path_raw);
+        let path_display = path.display();
+
+        println!("creating file {}", path_display);
+        let mut file = File::create(&path)?;
+        println!("writting file {}", path_display);
+        file.write_all(block.code.as_bytes())?;
+        //let mut file = match File::create(&path) {
+            //Ok(file) => file,
+            //Err(why) => panic!("couldn't create {}: {}", path_display, why),
+        //};
+
+        // Write the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`
+        //match file.write_all(block.code.as_bytes()) {
+            //Err(why) => panic!("couldn't write to {}: {}", path_display, why),
+            //Ok(_) => println!("successfully wrote to {}", path_display),
+        //}
+    }
+
+
+    Ok(())
+}
+
 fn main() -> Result<(), String> {
     let contents = fs::read_to_string("./DOC.md").expect("Something went wrong reading the file");
 
@@ -163,30 +200,8 @@ fn main() -> Result<(), String> {
     let prefix = "DOC";
     let tmp_dir = "./tmp";
 
-    fs::remove_dir_all(tmp_dir).unwrap_or_else(|why| {
-        println!("error cleaning tmp dir {:?}", why);
-    });
-    fs::create_dir_all(tmp_dir).unwrap_or_else(|why| {
-        println!("error creating tmp dir {:?}", why.kind());
-    });
-    for block in blocks.into_iter() {
-        let ext = block.get_file_ext();
-        let line = block.get_start_line();
-        let path_raw = format!("{}/{}__{}.{}", tmp_dir, prefix, line, ext);
-        let path = Path::new(&path_raw);
-        let path_display = path.display();
+    extract_to_fs(prefix, tmp_dir, blocks).unwrap();
 
-        let mut file = match File::create(&path) {
-            Ok(file) => file,
-            Err(why) => panic!("couldn't create {}: {}", path_display, why),
-        };
-
-        // Write the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`
-        match file.write_all(block.code.as_bytes()) {
-            Err(why) => panic!("couldn't write to {}: {}", path_display, why),
-            Ok(_) => println!("successfully wrote to {}", path_display),
-        }
-    }
 
     Ok(())
 }
