@@ -155,19 +155,20 @@ fn run_in_memory(blocks: Vec<CodeBlock>) -> Result<(), String> {
 
 fn main() -> Result<(), String> {
     let contents = fs::read_to_string("./DOC.md").expect("Something went wrong reading the file");
-    //println!("With text:\n{}", contents);
 
     let mut parser = Parser::new();
     let blocks = parser.parse(&contents)?;
-    //println!("blocks {:?}", blocks);
-    //
     //run_in_memory(blocks)?;
 
     let prefix = "DOC";
     let tmp_dir = "./tmp";
-      fs::create_dir_all(tmp_dir).unwrap_or_else(|why| {
-                  println!("! {:?}", why.kind());
-                      });
+
+    fs::remove_dir_all(tmp_dir).unwrap_or_else(|why| {
+        println!("error cleaning tmp dir {:?}", why);
+    });
+    fs::create_dir_all(tmp_dir).unwrap_or_else(|why| {
+        println!("error creating tmp dir {:?}", why.kind());
+    });
     for block in blocks.into_iter() {
         let ext = block.get_file_ext();
         let line = block.get_start_line();
@@ -175,10 +176,9 @@ fn main() -> Result<(), String> {
         let path = Path::new(&path_raw);
         let path_display = path.display();
 
-        // Open a file in write-only mode, returns `io::Result<File>`
         let mut file = match File::create(&path) {
-            Err(why) => panic!("couldn't create {}: {}", path_display, why),
             Ok(file) => file,
+            Err(why) => panic!("couldn't create {}: {}", path_display, why),
         };
 
         // Write the `LOREM_IPSUM` string to `file`, returns `io::Result<()>`

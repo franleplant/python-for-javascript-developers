@@ -110,6 +110,7 @@ Export default
 ```javascript
 import localModule from './fake/localModule.js'
 console.log(localModule.sayHi())
+
 ```
 
 ```python
