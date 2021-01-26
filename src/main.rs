@@ -89,32 +89,40 @@ fn main() -> Result<(), String> {
 
         match lang.as_str() {
             "javascript" => {
-                println!("evaluating {} block at line {}", lang, block.start + 1);
+                println!(">>> evaluating {} block at line {}", lang, block.start + 1);
                 let output = Command::new("node")
                     .arg("-e")
                     .arg(&block.code)
                     .output()
-                    .expect(&format!("failed to execute, is node installed and available?"));
+                    .expect(&format!(
+                        "failed to execute, is node installed and available?"
+                    ));
 
-                if !output.status.success() {
+                if output.status.success() {
+                    println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
+                } else {
                     println!("ERROR");
                     println!("{}", str::from_utf8(&output.stderr).unwrap())
                 }
             }
 
             "python" => {
-                println!("evaluating {} block at line {}", lang, block.start + 1);
+                println!(">>> evaluating {} block at line {}", lang, block.start + 1);
                 let output = Command::new("python3")
                     .arg("-c")
                     .arg(&block.code)
                     .output()
-                    .expect(&format!("failed to execute, is python3 installed and available?"));
+                    .expect(&format!(
+                        "failed to execute, is python3 installed and available?"
+                    ));
 
-                if !output.status.success() {
+                if output.status.success() {
+                    println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
+                } else {
                     println!("ERROR");
                     println!("{}", str::from_utf8(&output.stderr).unwrap())
                 }
-            },
+            }
 
             _ => println!("skipping code block {:?}", block),
         }

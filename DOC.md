@@ -18,6 +18,19 @@ console.log(`this is ${lang}`)
 
 ```
 
+```python
+for el in [1,2,3,4]:
+  print(el)
+
+```
+
+```javascript
+for (const el of [1,2,3,4]) {
+  console.log(el)
+}
+
+```
+
 ```
 untyped
 
