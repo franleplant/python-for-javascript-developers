@@ -223,13 +223,13 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
         let entry = entry?;
         let path_raw = entry.path();
         let path = Path::new(&path_raw);
+        println!(">>> evaluating {}", path.display());
         match path
             .extension()
             .map(|ext| ext.to_str().unwrap_or("no_ext"))
             .unwrap_or("no_ext")
         {
             "js" => {
-                println!(">>> evaluating {}", path.display());
                 let output = Command::new("node")
                     .arg(path.to_str().unwrap())
                     .output()
@@ -246,7 +246,6 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
             }
 
             "py" => {
-                println!(">>> evaluating {}", path.display());
                 let output = Command::new("python3")
                     .arg(path.to_str().unwrap())
                     .output()
@@ -262,9 +261,8 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
                 }
             }
 
-            _ => println!("fs_run skipping {}", path.display()),
+            _ => println!("skipping..."),
         }
-        //println!("found {:?} {:?}", path, path.extension());
     }
 
     Ok(())
