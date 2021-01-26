@@ -2,7 +2,7 @@
 
 ## some titles
 
-Declare objects
+## Objects
 
 ```javascript
 const obj = {
@@ -12,10 +12,11 @@ const obj = {
 }
 ```
 
-# In python (and in most langs) the closest thing to a js object is a dict
+In python (and in most langs) the closest thing to a js object is a dict
+
 ```python
 obj = {
- "key": "value",
+"key": "value",
     # this is a function pointer, but you need to define it elsewhere
  "ref_fn": hello_world,
     # lambdas in python are like arrow functions 
@@ -24,7 +25,15 @@ obj = {
 }
 ```
 
+## Arrays
+
+```javascript
+const array = [1,2,3]
+```
+
+```python
 array = [1,2,3]
+```
 
 # python support native tuples!
 my_tuple = (1,2,3)
