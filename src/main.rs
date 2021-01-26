@@ -94,6 +94,9 @@ fn main() -> Result<(), String> {
             "javascript" => {
                 println!(">>> evaluating {} block at line {}", lang, block.start + 1);
                 let output = Command::new("node")
+                    .arg("--experimental-vm-modules")
+                    .arg("--experimental-modules")
+                    .arg("--input-type=module")
                     .arg("-e")
                     .arg(&block.code)
                     .output()

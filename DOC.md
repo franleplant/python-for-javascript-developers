@@ -1,6 +1,4 @@
-# example of a markdown doc
-
-## some titles
+# Python for Javascript developers
 
 ## Variables
 
@@ -31,12 +29,11 @@ var myVar = "hello"
 }
 ```
 
-python has mainly one way of declaring variables i.e. by assignment.
+Python has mainly one way of declaring variables i.e. by assignment.
 It ressembles Javascript's `var`.
 
 ```python
 myVar = 123
-
 ```
 
 ## Objects
@@ -90,23 +87,42 @@ const my_set = new Set([1,2,3])
 my_set = set([1,2,3])
 ```
 
-# string interpolation
-
-name = "fran"
-print(f'hello {name}')
-
-wow so much markdown
-
-```python
-print("this is python")
-```
-
-- examples
-- test `123`
+## String Interpolation
 
 ```javascript
-const lang = "javascript";
-console.log(`this is ${lang}`);
+const name = "fran"
+console.log(`hello ${name}`)
+```
+
+```python
+name = "fran"
+print(f'hello {name}')
+```
+
+There are other ways of doing string interpolation in Python
+and in both Javascript and Python you can concatenate as primitive
+form of string interpolation.
+
+## Modules
+
+Export default
+
+```javascript
+import localModule from './fake/localModule.js'
+console.log(localModule.sayHi())
+```
+
+```python
+import fake.localModule
+print(localModule.sayHi())
+```
+
+```javascript
+import fs from 'fs'
+```
+
+```python
+from fake.localModule import 
 ```
 
 ```python
