@@ -11,11 +11,6 @@ helloWorld()
 helloWorldLambda()
 
 
-const obj = {
-    key: "value",
-    refFn: helloWorld,
-    refLambda: x => console.log(x)
-}
 
 const array = [1,2,3]
 
