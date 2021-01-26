@@ -1,10 +1,13 @@
 use regex::Regex;
 use std::fs;
+use std::process::Command;
+use std::str;
 
 #[derive(Debug)]
 struct CodeBlock {
     lang: Option<String>,
     code: String,
+    start: usize,
 }
 
 struct Parser<'a> {
@@ -38,6 +41,7 @@ impl<'a> Parser<'a> {
             //println!("line {}", line);
 
             if let Some(cap) = self.block_start.captures(line) {
+                let start = self.index;
                 let lang = cap.name("language").map(|m| m.as_str().to_string());
                 let mut code: Vec<&str> = vec![];
 
@@ -56,6 +60,7 @@ impl<'a> Parser<'a> {
                 }
 
                 let block = CodeBlock {
+                    start,
                     lang,
                     code: code.join("\n").to_string(),
                 };
@@ -71,7 +76,7 @@ impl<'a> Parser<'a> {
     }
 }
 
-fn main() -> Result<(), String>{
+fn main() -> Result<(), String> {
     let contents = fs::read_to_string("./DOC.md").expect("Something went wrong reading the file");
     //println!("With text:\n{}", contents);
 
@@ -83,13 +88,36 @@ fn main() -> Result<(), String>{
         let lang = block.lang.clone().unwrap_or("no_lang".to_string());
 
         match lang.as_str() {
-            "python" => println!("found py {:?}", block.code),
-            "javascript" => println!("found js {:?}", block.code),
+            "javascript" => {
+                println!("evaluating {} block at line {}", lang, block.start + 1);
+                let output = Command::new("node")
+                    .arg("-e")
+                    .arg(&block.code)
+                    .output()
+                    .expect(&format!("failed to execute, is node installed and available?"));
 
-            _ => println!("skipping code block {:?}", block)
+                if !output.status.success() {
+                    println!("ERROR");
+                    println!("{}", str::from_utf8(&output.stderr).unwrap())
+                }
+            }
+
+            "python" => {
+                println!("evaluating {} block at line {}", lang, block.start + 1);
+                let output = Command::new("python3")
+                    .arg("-c")
+                    .arg(&block.code)
+                    .output()
+                    .expect(&format!("failed to execute, is python3 installed and available?"));
+
+                if !output.status.success() {
+                    println!("ERROR");
+                    println!("{}", str::from_utf8(&output.stderr).unwrap())
+                }
+            },
+
+            _ => println!("skipping code block {:?}", block),
         }
-
-
     }
 
     Ok(())
