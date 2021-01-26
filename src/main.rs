@@ -85,7 +85,10 @@ fn main() -> Result<(), String> {
     //println!("blocks {:?}", blocks);
 
     for block in blocks.into_iter() {
-        let lang = block.lang.clone().unwrap_or("no_lang".to_string());
+        let mut lang = block.lang.clone().unwrap_or("no_lang".to_string());
+        if lang.len() == 0 {
+            lang = "no_lang".to_string();
+        }
 
         match lang.as_str() {
             "javascript" => {
@@ -124,7 +127,7 @@ fn main() -> Result<(), String> {
                 }
             }
 
-            _ => println!("skipping code block {:?}", block),
+            _ => println!("xxx skipping {} block at line {}", lang, block.start + 1),
         }
     }
 
