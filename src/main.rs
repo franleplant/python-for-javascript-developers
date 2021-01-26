@@ -57,7 +57,7 @@ impl<'a> Parser<'a> {
 
                 let block = CodeBlock {
                     lang,
-                    code: code.join("").to_string(),
+                    code: code.join("\n").to_string(),
                 };
 
                 //println!("found block {:?}", block);
@@ -71,16 +71,26 @@ impl<'a> Parser<'a> {
     }
 }
 
-fn main() {
+fn main() -> Result<(), String>{
     let contents = fs::read_to_string("./DOC.md").expect("Something went wrong reading the file");
-    println!("With text:\n{}", contents);
+    //println!("With text:\n{}", contents);
 
     let mut parser = Parser::new();
-    let blocks = parser.parse(&contents);
-    println!("blocks {:?}", blocks);
+    let blocks = parser.parse(&contents)?;
+    //println!("blocks {:?}", blocks);
 
-    //assert!(re.is_match(&contents));
-    //for cap in re.captures_iter(&contents) {
-    //println!("cap:{:?}", cap);
-    //}
+    for block in blocks.into_iter() {
+        let lang = block.lang.clone().unwrap_or("no_lang".to_string());
+
+        match lang.as_str() {
+            "python" => println!("found py {:?}", block.code),
+            "javascript" => println!("found js {:?}", block.code),
+
+            _ => println!("skipping code block {:?}", block)
+        }
+
+
+    }
+
+    Ok(())
 }
