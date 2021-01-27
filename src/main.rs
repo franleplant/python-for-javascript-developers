@@ -239,7 +239,8 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
                     println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
                 } else {
                     println!("ERROR");
-                    println!("{}", str::from_utf8(&output.stderr).unwrap())
+                    println!("{}", str::from_utf8(&output.stderr).unwrap());
+                    panic!("error running file");
                 }
             }
 
@@ -253,7 +254,8 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
                     println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
                 } else {
                     println!("ERROR");
-                    println!("{}", str::from_utf8(&output.stderr).unwrap())
+                    println!("{}", str::from_utf8(&output.stderr).unwrap());
+                    panic!("error running file");
                 }
             }
 

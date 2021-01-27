@@ -1,4 +1,4 @@
-function sayHi() {
+export function sayHi() {
   console.log("hi from js")
 }
 

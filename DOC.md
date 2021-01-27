@@ -118,12 +118,16 @@ import fake.localModule
 print(localModule.sayHi())
 ```
 
+Named exports
+
 ```javascript
-import fs from 'fs'
+import {sayHi} from '../fake/localModule.js'
+console.log(sayHi())
 ```
 
 ```python
-from fake.localModule import 
+from fake.localModule import sayHi
+print(sayHi())
 ```
 
 ```python
