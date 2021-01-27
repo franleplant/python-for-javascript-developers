@@ -108,7 +108,7 @@ form of string interpolation.
 Export default
 
 ```javascript
-import localModule from '../fake/localModule.js'
+import localModule from './fake/localModule.js'
 console.log(localModule.sayHi())
 
 ```
@@ -121,7 +121,7 @@ print(localModule.sayHi())
 Named exports
 
 ```javascript
-import {sayHi} from '../fake/localModule.js'
+import {sayHi} from './fake/localModule.js'
 console.log(sayHi())
 ```
 
