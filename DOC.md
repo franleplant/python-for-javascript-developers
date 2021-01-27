@@ -108,27 +108,38 @@ form of string interpolation.
 Export default
 
 ```javascript
-import localModule from './fake/localModule.js'
+import localModule from './mock/localModule.js'
 console.log(localModule.sayHi())
 
 ```
 
 ```python
-import fake.localModule
+from mock import localModule
 print(localModule.sayHi())
+```
+
+or even
+
+```python
+from mock.localModule import *
+print(sayHi())
 ```
 
 Named exports
 
 ```javascript
-import {sayHi} from './fake/localModule.js'
+import {sayHi} from './mock/localModule.js'
 console.log(sayHi())
 ```
 
 ```python
-from fake.localModule import sayHi
+from mock.localModule import sayHi
 print(sayHi())
 ```
+
+TODO py vs js global modules etc
+
+## Iteration
 
 ```python
 for el in [1,2,3,4]:

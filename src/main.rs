@@ -219,6 +219,21 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
     check_node().unwrap();
     check_python().unwrap();
 
+    // copy mocks
+    let mock_dir = "mock";
+    let dest_dir = format!("{}/{}", tmp_dir, mock_dir);
+    fs::create_dir_all(&dest_dir)?;
+    for entry in fs::read_dir(mock_dir)? {
+        let entry = entry?;
+        //let ty = entry.file_type()?;
+        //if ty.is_dir() {
+            //copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        //} else {
+        let path = Path::new(&dest_dir);
+            fs::copy(entry.path(), path.join(entry.file_name()))?;
+        //}
+    }
+
     for entry in fs::read_dir(tmp_dir)? {
         let entry = entry?;
         let path_raw = entry.path();
