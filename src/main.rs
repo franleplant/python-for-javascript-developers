@@ -192,7 +192,7 @@ fn check_node() -> Result<String, String> {
         return Ok(version.to_string());
     } else {
         println!("{}", str::from_utf8(&output.stderr).unwrap());
-        return Err(("node not found".to_string()));
+        return Err("node not found".to_string());
     }
 }
 
@@ -210,7 +210,7 @@ fn check_python() -> Result<String, String> {
         return Ok(version.to_string());
     } else {
         println!("{}", str::from_utf8(&output.stderr).unwrap());
-        return Err(("python3 not found".to_string()));
+        return Err("python3 not found".to_string());
     }
 }
 
@@ -233,9 +233,7 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
                 let output = Command::new("node")
                     .arg(path.to_str().unwrap())
                     .output()
-                    .expect(&format!(
-                        "failed to execute, is node installed and available?"
-                    ));
+                    .unwrap();
 
                 if output.status.success() {
                     println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
@@ -249,9 +247,7 @@ fn fs_run(tmp_dir: &str) -> io::Result<()> {
                 let output = Command::new("python3")
                     .arg(path.to_str().unwrap())
                     .output()
-                    .expect(&format!(
-                        "failed to execute, is python3 installed and available?"
-                    ));
+                    .unwrap();
 
                 if output.status.success() {
                     println!("stdout:\n{}", str::from_utf8(&output.stdout).unwrap())
